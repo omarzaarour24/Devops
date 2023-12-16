@@ -1,0 +1,33 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend for short name search application with SQLite and Postgres database support.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "lint": "npx eslint . --ext .js",
+    "test": "npx mocha",
+    "lintreport": "npx eslint . --ext .js --format html --output-file lint-report.html",
+    "testreport": "npx mocha --reporter mocha-simple-html-reporter --reporter-options output=test-report.html"
+  },  
+  "author": "Evert Duipmans <e.f.duipmans@saxion.nl>",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mocha-simple-html-reporter": "^2.0.0",
+    "pg": "^8.10.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.31.0",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "eslint": "^8.40.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-mocha": "^10.1.0",
+    "mocha": "^10.2.0",
+    "supertest": "^6.3.3"
+  }
+}

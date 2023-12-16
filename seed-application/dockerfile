@@ -1,0 +1,19 @@
+FROM ubuntu:latest
+
+# RUN apt install --no-cache curl bash
+RUN apt-get update && apt-get install -y postgresql-client
+
+WORKDIR /seed-application
+
+COPY add_contacts.sh /add_contacts.sh
+COPY data.txt /data.txt
+
+RUN chmod +x /add_contacts.sh
+
+
+
+#At first we decided to use alpine but since we're using ubuntu to run the scripts it was 
+#working, so then we changed to ubuntu and everything started working!
+#We update and install postgres inside of it (if we try to run the script manualy now it doesn't because it doenst have the 
+#postgres installed so by running the this container everything will work correctly).
+#We set the work directory copy the files and then we set to run the script.

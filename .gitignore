@@ -1,0 +1,4 @@
+node_modules
+backend/*.sqlite
+backend/testreport.html
+backend/lintreport.html

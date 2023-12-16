@@ -1,0 +1,70 @@
+stages:
+  - lint
+  - test
+  - build
+  - deploy
+
+lint_backend:
+  stage: lint
+  image: node:latest
+  script:
+    - cd backend/
+    - npm install
+    - npm run lintreport
+  artifacts:
+    paths:
+      - backend/reports/lint-report.html
+    expire_in : 1 month
+
+test_backend:
+  stage: test
+  image: node:20.2.0
+  script:
+    - bash pipelineScript.sh
+  artifacts:
+    paths:
+      - backend/reports/test-report.html
+    expire_in: 1 month
+
+
+build_backend:
+  stage: build
+  script:
+    - cd backend
+    - docker build -t $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG .
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
+
+build_frontend:
+  stage: build
+  script:
+    - cd frontend
+    - docker build -t $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_REF_SLUG .
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_REF_SLUG
+
+
+deploy:
+  stage: deploy
+  script:
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan '18.208.197.94' >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - ssh -i "C:\users\joão\Downloads\keypair.pem" ubuntu@18.208.197.94 <<EOF
+      cd 160
+      git pull
+      docker-compose up --build -d
+      EOF
+
+
+
+#Starting with the lint, we used node to lint the backend. Just got into the backend, did install the dependecies. With this we have our lint-report.html in our backend.
+#Then moving to the test stage, for the backend we run the pipelineScript. and we get a new test-report.html in the backend directory.
+
+#For the build stage we built docker images, one for the backend and one for the frontend. It runs a docker build to in order to create a docker image, after that we log into the docker registry and we push the images.
+
+#For the deploy stage, we first initialize and load the ssh key.  After  being on the ubuntu we navigate to the our repo directory and we do git pull to update our code if needed
+#and try to launch our docker containers by using the docker compose.

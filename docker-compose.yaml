@@ -1,0 +1,67 @@
+version: '3.9'
+
+
+services:
+  backend:
+    build: backend
+    container_name: backend
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=db
+      - NODE_ENV=production
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+
+  frontend:
+    image: nginx:latest
+    container_name: frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+
+  db:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=db
+    ports:
+      - "5432:5432"
+
+  seed-application:
+    build: 
+      context: ./seed-application
+      dockerfile: Dockerfile
+    container_name: seed-application
+    volumes:
+      - ./seed-application:/seed-application
+    depends_on:
+      - db
+      - backend
+    entrypoint: ["/seed-application/add_contacts.sh"]
+
+
+volumes:
+  postgres_data:
+
+
+
+#To containereize the backend and frontend applications we defined the two services (one for frontend and the other for backend)
+#the backend was created in the backend directory we defined the name and exposed to the same part as in the docker file
+#For the frontend we used the nginx image, defined the name and exposed it to port 8080:80.
+
+#Then to do the Containerization of an external database and seed script we started by creating one new service, the db using postgres.
+#We did set the environment variables for the database, with them we also added the environment variables for the backend as they were asked using the production to use
+#the postgres db, it was also needed to use the same variables that we have set in the db.
+
+#In order to make the the contacts.sh run, we created the seed-application container that executes the script and populates the database, in order to test we just 
+#need to do "docker-compose up -d --build" this will run the frontend, backend, db and seed-application container and if we want to check if the database was populated
+#we can check the logs for the seed-application container.

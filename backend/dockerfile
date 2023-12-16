@@ -1,0 +1,12 @@
+# Dockerfile for Backend
+FROM node:16
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 5000
+CMD ["npm", "start"]
+
+#For this we only had to containerized so we used nodejs as the base image, we set the working directory copied the files into there
+# installed the dependencies and then we copied the rest of it to the /app to finish we just exposed to the port
+#that the backend runs on
